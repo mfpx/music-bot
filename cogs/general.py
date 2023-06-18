@@ -56,11 +56,11 @@ class General(commands.Cog, name="general"):
         :param context: The hybrid command context.
         """
         embed = discord.Embed(
-            description="Used [Krypton's](https://krypton.ninja) template",
+            description="Lúcio Music Bot",
             color=0x9C84EF,
         )
         embed.set_author(name="Bot Information")
-        embed.add_field(name="Owner:", value="Krypton#7331", inline=True)
+        embed.add_field(name="Owner:", value="genericpleb", inline=True)
         embed.add_field(
             name="Python Version:", value=f"{platform.python_version()}", inline=True
         )
@@ -144,27 +144,6 @@ class General(commands.Cog, name="general"):
             await context.send(embed=embed)
 
     @commands.hybrid_command(
-        name="server",
-        description="Get the invite link of the discord server of the bot for some support.",
-    )
-    @checks.not_blacklisted()
-    async def server(self, context: Context) -> None:
-        """
-        Get the invite link of the discord server of the bot for some support.
-
-        :param context: The hybrid command context.
-        """
-        embed = discord.Embed(
-            description=f"Join the support server for the bot by clicking [here](https://discord.gg/mTBrXyWxAF).",
-            color=0xD75BF4,
-        )
-        try:
-            await context.author.send(embed=embed)
-            await context.send("I sent you a private message!")
-        except discord.Forbidden:
-            await context.send(embed=embed)
-
-    @commands.hybrid_command(
         name="8ball",
         description="Ask any question to the bot.",
     )
@@ -239,6 +218,19 @@ class General(commands.Cog, name="general"):
                         color=0xE02B2B,
                     )
                 await context.send(embed=embed)
+                
+    @commands.hybrid_command(
+        name="ctxid",
+        description="Get the context author ID"
+    )
+    async def ctxid(self, context: Context) -> None:
+        embed = discord.Embed(
+            title="Context user info",
+            color=0x9C84EF
+            )
+        embed.add_field(name="User ID", value=context.author.id)
+        embed.add_field(name="User name", value=context.author.name)
+        await context.send(embed=embed)
 
 
 async def setup(bot):

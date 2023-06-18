@@ -27,3 +27,12 @@ class UserNotOwner(commands.CheckFailure):
     def __init__(self, message="User is not an owner of the bot!"):
         self.message = message
         super().__init__(self.message)
+
+class BadQueueObjectType(Exception):
+    """
+    Thrown when attempting to add something other than QueueItem to the Queue
+    """
+
+    def __init__(self, message="Attempting to add the wrong type of object to the Queue!"):
+        self.message = message
+        super().__init__(self.message)

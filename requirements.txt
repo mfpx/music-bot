@@ -1,3 +1,6 @@
 aiohttp
 aiosqlite
 discord.py
+pynacl
+# pypi doesn't have the latest version, so we must install it from github using the master branch
+git+https://github.com/ytdl-org/youtube-dl.git@master
