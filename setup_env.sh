@@ -27,6 +27,7 @@ fi
 if command -v apt-get > /dev/null && [ $EUID -eq 0 ] && [ "$install" == "true" ]
 then
   # from debconf manpage, section 7 specifically (man 7 debconf)
+  sudo DEBIAN_FRONTEND=noninteractive apt-get update
   sudo DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg python3
 elif [ $EUID -ne 0 ] && [ "$install" == "true" ]
 then

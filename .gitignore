@@ -152,3 +152,7 @@ config.json.secrets
 
 # VS Code
 .vscode
+
+# Terraform
+.terraform
+.terraform.lock.hcl
