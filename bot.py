@@ -27,6 +27,16 @@ else:
     with open(f"{os.path.realpath(os.path.dirname(__file__))}/config.json") as file:
         config = json.load(file)
 
+        # Hacky, will fix later :)
+        if config['token'] == "TOKEN":
+            config['token'] = os.environ.get('BOT_TOKEN')
+        if config['permissions'] == "PERMISSIONS":
+            config['permissions'] = os.environ.get('PERMISSIONS')
+        if config['application_id'] == "APPID":
+            config['application_id'] = os.environ.get('APP_ID')
+        if config['client_id'] == "CLIENTID":
+            config['client_id'] = os.environ.get('CLIENT_ID')
+
 """	
 Setup bot intents (events restrictions)
 For more information about intents, please go to the following websites:
