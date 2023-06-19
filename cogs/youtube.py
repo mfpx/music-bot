@@ -1,9 +1,11 @@
+import re
 from typing import List
 import youtube_dl
 import discord
 import asyncio
 import glob
 import os
+import aiohttp
 from exceptions import BadQueueObjectType
 from os.path import exists
 from discord.ext import commands
@@ -140,13 +142,11 @@ class Music(commands.Cog, name="music"):
         await channel.connect()
 
     @commands.hybrid_command(
-            name="yt",
+            name="dl_play",
             description="Plays from a url (almost anything youtube_dl supports)"
     )
     @checks.not_blacklisted()
-    async def yt(self, ctx: Context, *, url):
-        """Plays from a url (almost anything youtube_dl supports)"""
-
+    async def dl_play(self, ctx: Context, *, url):
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
             ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
@@ -245,17 +245,38 @@ class Music(commands.Cog, name="music"):
 
     @commands.hybrid_command(
             name="play",
-            description="Streams from a url (same as yt, but doesn't predownload)"
+            description="Streams from a url (same as dl_play, but doesn't predownload)"
     )
     @checks.not_blacklisted()
-    async def play(self, ctx: Context, *, url):
-        """Streams from a url (same as yt, but doesn't predownload)"""
+    async def play(self, ctx: Context, *, term: str):
+        if not 'youtube.com' and not 'youtu.be' in term:
+            if not 'https://' in term:
+                term = await self.search(term)
 
         async with ctx.typing():
-            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
+            try:
+                player = await YTDLSource.from_url(term, loop=self.bot.loop, stream=True)
+                ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 
-        await ctx.send(f'**Warning**: This can randomly lag, might or might not fix sometime\nNow playing: {player.title}')
+                await ctx.send(f'**Warning**: This can randomly lag, might or might not fix sometime\nNow playing: {player.title}')
+            except Exception as ex:
+                await ctx.send("Something went wrong!\nIf the issue persists, inform the developer")
+
+
+    async def search(self, search: str):
+        params = {"search_query": search}
+        headers = {"User-Agent": "Mozilla/5.0"}
+
+        async with aiohttp.ClientSession() as client:
+            async with client.get(
+                    "https://www.youtube.com/results",
+                    params = params, # GET params
+                    headers = headers # Requested headers, UA in this case
+                ) as response:
+                
+                dom = await response.text()
+        found = re.findall(r'\/watch\?v=([a-zA-Z0-9_-]{11})', dom)
+        return f"https://youtu.be/{found[0]}"
 
     @commands.hybrid_command(
             name="ffmpeglog",
@@ -316,7 +337,7 @@ class Music(commands.Cog, name="music"):
             else:
                 await ctx.send("Failed to purge the cache")
 
-    @yt.before_invoke
+    @dl_play.before_invoke
     @play.before_invoke
     @playqueue.before_invoke
     async def ensure_voice(self, ctx: Context):

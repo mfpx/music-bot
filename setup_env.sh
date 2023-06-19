@@ -11,6 +11,16 @@ do
     esac
 done
 
+if command -v apt-get > /dev/null && [ $EUID -eq 0 ] && [ "$install" == "true" ]
+then
+  # from debconf manpage, section 7 specifically (man 7 debconf)
+  sudo DEBIAN_FRONTEND=noninteractive apt-get update
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg python3 python3-pip python3-venv -y
+elif [ $EUID -ne 0 ] && [ "$install" == "true" ]
+then
+  printf "Install requested, but not running as root\nWill not install packages\n"
+fi
+
 # check if python exists
 if ! command -v python > /dev/null && ! command -v python3 > /dev/null
 then
@@ -22,16 +32,6 @@ if ! command -v python > /dev/null && command -v python3 > /dev/null
 then
   echo "Python is only accessible via \"python3\", a temporary alias will created"
   alias python="python3"
-fi
-
-if command -v apt-get > /dev/null && [ $EUID -eq 0 ] && [ "$install" == "true" ]
-then
-  # from debconf manpage, section 7 specifically (man 7 debconf)
-  sudo DEBIAN_FRONTEND=noninteractive apt-get update
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg python3 python3-pip python3-venv -y
-elif [ $EUID -ne 0 ] && [ "$install" == "true" ]
-then
-  printf "Install requested, but not running as root\nWill not install packages\n"
 fi
 
 # ensure pip
