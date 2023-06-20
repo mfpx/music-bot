@@ -1,12 +1,14 @@
 #!/bin/bash
 # necessary shell option for aliases to work
 shopt -s expand_aliases
+set -o pipefail
 
 # argument handling
-while getopts i: flag
+while getopts i:n: flag
 do
     case "${flag}" in
         i) install=${OPTARG};;
+        n) no_venv=${OPTARG};;
         *) echo "Invalid argument" && exit 1;;
     esac
 done
@@ -41,17 +43,29 @@ then
   python -m ensurepip
 fi
 
-# create a venv
-python -m venv .venv
+if [ "$no_venv" == "true" ]
+then
+  # install wheel globally
+  pip install wheel
 
-# make activation script executable
-chmod +x .venv/bin/activate
+  # install requirements
+  pip install -r requirements.txt
 
-# install wheel in the venv
-.venv/bin/pip install wheel
+  # notify that no_venv was requested
+  printf "All done!\nNo venv was requested, so packages were installed into the system python environment\n"
+else
+  # create a venv
+  python -m venv .venv
 
-# install requirements
-.venv/bin/pip install -r requirements.txt
+  # make activation script executable
+  chmod +x .venv/bin/activate
 
-# command to run
-printf "All done!\nRun \"source .venv/bin/activate\"\n"
+  # install wheel in the venv
+  .venv/bin/pip install wheel
+
+  # install requirements
+  .venv/bin/pip install -r requirements.txt
+
+  # command to run
+  printf "All done!\nRun \"source .venv/bin/activate\"\n"
+fi

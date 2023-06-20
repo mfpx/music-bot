@@ -1,0 +1,12 @@
+[Unit]
+Description=Discord music bot service
+After=multi-user.target network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'cd /home/ubuntu/music-bot/ && python bot.py'
+Restart=on-failure
+EnvironmentFile=/home/ubuntu/service_env
+
+[Install]
+WantedBy=multi-user.target
