@@ -109,7 +109,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
             before_opts = ""
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options, stderr=ffmpeglog, before_options=before_opts), data=data)
 
-
 class Music(commands.Cog, name="music"):
     def __init__(self, bot):
         self.bot = bot
@@ -158,8 +157,12 @@ class Music(commands.Cog, name="music"):
             description="Add song to queue"
     )
     @checks.not_blacklisted()
-    async def add(self, ctx: Context, url: str):
-        track_info = ytdl.extract_info(url, download = False)
+    async def add(self, ctx: Context, term: str):
+        if not 'youtube.com' and not 'youtu.be' in term:
+            if not 'https://' in term:
+                term = await self.search(term)
+
+        track_info = ytdl.extract_info(term, download = False)
         queue_item = QueueItem(track_info['title'], track_info['url'], track_info['webpage_url'])
         self.queue.add_to_queue(queue_item)
 
