@@ -4,7 +4,7 @@ After=multi-user.target network.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c 'cd /home/ubuntu/music-bot/ && python bot.py'
+ExecStart=/bin/bash -c 'cd /home/ubuntu/music-bot/ && python3 bot.py'
 Restart=on-failure
 EnvironmentFile=/home/ubuntu/service_env
 
