@@ -30,9 +30,18 @@ class UserNotOwner(commands.CheckFailure):
 
 class BadQueueObjectType(Exception):
     """
-    Thrown when attempting to add something other than QueueItem to the Queue
+    Thrown when attempting to add something other than QueueItem to the Queue.
     """
 
     def __init__(self, message="Attempting to add the wrong type of object to the Queue!"):
+        self.message = message
+        super().__init__(self.message)
+
+class AppInProdMode(Exception):
+    """
+    Thrown when the bot is configured for production, but attempting to run a developer function.
+    """
+
+    def __init__(self, message="Attempting to run a development function in a production environment!"):
         self.message = message
         super().__init__(self.message)

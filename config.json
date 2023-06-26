@@ -5,6 +5,7 @@
   "application_id": "APPID",
   "client_id": "CLIENTID",
   "sync_commands_globally": true,
+  "production": true,
   "owners": [
     274957689233342464,
     604185688791056404 

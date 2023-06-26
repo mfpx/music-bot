@@ -8,8 +8,9 @@ import os
 import aiohttp
 from exceptions import BadQueueObjectType
 from os.path import exists
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import Context
+import time
 
 from helpers import checks
 
@@ -113,6 +114,22 @@ class Music(commands.Cog, name="music"):
     def __init__(self, bot):
         self.bot = bot
         self.queue = Queue()
+        self.finished_playing_time = None
+        self.timeout_context = None
+
+    @tasks.loop(seconds=10.0)
+    async def voice_timeout_watchdog(self, ctx: Context):
+        if self.timeout_context is None:
+            self.timeout_context = ctx
+        else:
+            if self.finished_playing_time is not None:
+                difference = round(time.time()) - self.finished_playing_time
+                if not ctx.voice_client.is_playing() and difference >= 600:
+                    await ctx.voice_client.disconnect()
+                    self.finished_playing_time = None
+                    self.voice_timeout_watchdog.cancel()
+            elif ctx.voice_client.is_playing():
+                self.finished_playing_time = round(time.time())
 
     # TODO: This is a very dangerous command for production use! Disable before pushing to prod
     @commands.hybrid_command(
@@ -121,6 +138,7 @@ class Music(commands.Cog, name="music"):
     )
     @checks.is_owner()
     @checks.not_blacklisted()
+    @checks.is_production()
     async def repl(self, ctx: Context, command: str):
         try:
             await ctx.send(eval(command))
@@ -274,7 +292,7 @@ class Music(commands.Cog, name="music"):
             async with client.get(
                     "https://www.youtube.com/results",
                     params = params, # GET params
-                    headers = headers # Requested headers, UA in this case
+                    headers = headers # Request headers, UA in this case
                 ) as response:
                 
                 dom = await response.text()
@@ -287,6 +305,7 @@ class Music(commands.Cog, name="music"):
     )
     @checks.is_owner()
     @checks.not_blacklisted()
+    @checks.is_production()
     async def ffmpeglog(self, ctx: Context):
         try:
             logfile = discord.File("ffmpeg.log")
@@ -346,6 +365,7 @@ class Music(commands.Cog, name="music"):
     async def ensure_voice(self, ctx: Context):
         if ctx.voice_client is None:
             if ctx.author.voice:
+                self.voice_timeout_watchdog.start(ctx = ctx)
                 await ctx.author.voice.channel.connect()
             else:
                 await ctx.send("You are not connected to a voice channel.")

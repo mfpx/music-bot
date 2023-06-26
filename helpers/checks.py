@@ -34,6 +34,22 @@ def is_owner() -> Callable[[T], T]:
 
     return commands.check(predicate)
 
+def is_production() -> Callable[[T], T]:
+    """
+    This is a custom check to see if the bot is configured to run in production.
+    """
+
+    async def predicate(context: commands.Context) -> bool:
+        with open(
+            f"{os.path.realpath(os.path.dirname(__file__))}/../config.json"
+        ) as file:
+            data = json.load(file)
+        if data["production"] is True:
+            raise AppInProdMode
+        return True
+    
+    return commands.check(predicate)
+
 
 def not_blacklisted() -> Callable[[T], T]:
     """
