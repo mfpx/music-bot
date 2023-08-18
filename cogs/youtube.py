@@ -124,14 +124,14 @@ class Music(commands.Cog, name="music"):
         else:
             if self.finished_playing_time is not None:
                 difference = round(time.time()) - self.finished_playing_time
+                print(f'Calculated time difference is {difference}')
                 if not ctx.voice_client.is_playing() and difference >= 600:
                     await ctx.voice_client.disconnect()
                     self.finished_playing_time = None
                     self.voice_timeout_watchdog.cancel()
-            elif ctx.voice_client.is_playing():
+            elif not ctx.voice_client.is_playing():
                 self.finished_playing_time = round(time.time())
 
-    # TODO: This is a very dangerous command for production use! Disable before pushing to prod
     @commands.hybrid_command(
             name="repl",
             description="Python REPL"
@@ -176,8 +176,8 @@ class Music(commands.Cog, name="music"):
     )
     @checks.not_blacklisted()
     async def add(self, ctx: Context, term: str):
-        if not 'youtube.com' and not 'youtu.be' in term:
-            if not 'https://' in term:
+        if not 'youtube.com' and 'youtu.be' not in term:
+            if 'https://' not in term:
                 term = await self.search(term)
 
         track_info = ytdl.extract_info(term, download = False)
@@ -213,19 +213,19 @@ class Music(commands.Cog, name="music"):
             description="Removes a song from queue using its queue number"
     )
     @checks.not_blacklisted()
-    async def rmtrack(self, ctx: Context, id: int):
+    async def rmtrack(self, ctx: Context, trackid: int):
         """
         Using index -1 will remove from end of list\n
-        So we use this to set `id` to 1
+        So we use this to set `trackid` to 1
         """
-        if id - 1 == -1:
-            id = 1
+        if trackid - 1 == -1:
+            trackid = 1
 
         try:    
-            await ctx.send(f"Removed **{self.queue.get_queue_item(id-1).title}** from queue.")
-            self.queue.remove_from_queue(id-1)
+            await ctx.send(f"Removed **{self.queue.get_queue_item(trackid-1).title}** from queue.")
+            self.queue.remove_from_queue(trackid-1)
         except IndexError:
-            await ctx.send(f"ID **{id}** doesn't exist in queue!")
+            await ctx.send(f"ID **{trackid}** doesn't exist in queue!")
 
     @commands.hybrid_command(
             name="playqueue",
@@ -270,8 +270,8 @@ class Music(commands.Cog, name="music"):
     )
     @checks.not_blacklisted()
     async def play(self, ctx: Context, *, term: str):
-        if not 'youtube.com' and not 'youtu.be' in term:
-            if not 'https://' in term:
+        if not 'youtube.com' and 'youtu.be' not in term:
+            if 'https://' not in term:
                 term = await self.search(term)
 
         async with ctx.typing():
@@ -279,8 +279,8 @@ class Music(commands.Cog, name="music"):
                 player = await YTDLSource.from_url(term, loop=self.bot.loop, stream=True)
                 ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 
-                await ctx.send(f'**Warning**: This can randomly lag, might or might not fix sometime\nNow playing: {player.title}')
-            except Exception as ex:
+                await ctx.send(f'Now playing: **{player.title}**')
+            except Exception:
                 await ctx.send("Something went wrong!\nIf the issue persists, inform the developer")
 
 

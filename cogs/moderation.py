@@ -15,6 +15,9 @@ from helpers import checks, db_manager
 
 
 class Moderation(commands.Cog, name="moderation"):
+    DEFAULT_REASON = "Not Specified"
+    REASON_FIELD_NAME = "Reason:"
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -30,7 +33,7 @@ class Moderation(commands.Cog, name="moderation"):
         reason="The reason why the user should be kicked.",
     )
     async def kick(
-        self, context: Context, user: discord.User, *, reason: str = "Not specified"
+        self, context: Context, user: discord.User, *, reason: str = DEFAULT_REASON
     ) -> None:
         """
         Kick a user out of the server.
@@ -53,17 +56,17 @@ class Moderation(commands.Cog, name="moderation"):
                     description=f"**{member}** was kicked by **{context.author}**!",
                     color=0x9C84EF,
                 )
-                embed.add_field(name="Reason:", value=reason)
+                embed.add_field(name=self.REASON_FIELD_NAME, value=reason)
                 await context.send(embed=embed)
                 try:
                     await member.send(
                         f"You were kicked by **{context.author}** from **{context.guild.name}**!\nReason: {reason}"
                     )
-                except:
+                except Exception:
                     # Couldn't send a message in the private messages of the user
                     pass
                 await member.kick(reason=reason)
-            except:
+            except Exception:
                 embed = discord.Embed(
                     description="An error occurred while trying to kick the user. Make sure my role is above the role of the user you want to kick.",
                     color=0xE02B2B,
@@ -101,7 +104,7 @@ class Moderation(commands.Cog, name="moderation"):
                 color=0x9C84EF,
             )
             await context.send(embed=embed)
-        except:
+        except Exception:
             embed = discord.Embed(
                 description="An error occurred while trying to change the nickname of the user. Make sure my role is above the role of the user you want to change the nickname.",
                 color=0xE02B2B,
@@ -120,7 +123,7 @@ class Moderation(commands.Cog, name="moderation"):
         reason="The reason why the user should be banned.",
     )
     async def ban(
-        self, context: Context, user: discord.User, *, reason: str = "Not specified"
+        self, context: Context, user: discord.User, *, reason: str = DEFAULT_REASON
     ) -> None:
         """
         Bans a user from the server.
@@ -143,17 +146,17 @@ class Moderation(commands.Cog, name="moderation"):
                     description=f"**{member}** was banned by **{context.author}**!",
                     color=0x9C84EF,
                 )
-                embed.add_field(name="Reason:", value=reason)
+                embed.add_field(name=self.REASON_FIELD_NAME, value=reason)
                 await context.send(embed=embed)
                 try:
                     await member.send(
                         f"You were banned by **{context.author}** from **{context.guild.name}**!\nReason: {reason}"
                     )
-                except:
+                except Exception:
                     # Couldn't send a message in the private messages of the user
                     pass
                 await member.ban(reason=reason)
-        except:
+        except Exception:
             embed = discord.Embed(
                 title="Error!",
                 description="An error occurred while trying to ban the user. Make sure my role is above the role of the user you want to ban.",
@@ -191,7 +194,7 @@ class Moderation(commands.Cog, name="moderation"):
         reason="The reason why the user should be warned.",
     )
     async def warning_add(
-        self, context: Context, user: discord.User, *, reason: str = "Not specified"
+        self, context: Context, user: discord.User, *, reason: str = DEFAULT_REASON
     ) -> None:
         """
         Warns a user in his private messages.
@@ -210,13 +213,13 @@ class Moderation(commands.Cog, name="moderation"):
             description=f"**{member}** was warned by **{context.author}**!\nTotal warns for this user: {total}",
             color=0x9C84EF,
         )
-        embed.add_field(name="Reason:", value=reason)
+        embed.add_field(name=self.REASON_FIELD_NAME, value=reason)
         await context.send(embed=embed)
         try:
             await member.send(
                 f"You were warned by **{context.author}** in **{context.guild.name}**!\nReason: {reason}"
             )
-        except:
+        except Exception:
             # Couldn't send a message in the private messages of the user
             await context.send(
                 f"{member.mention}, you were warned by **{context.author}**!\nReason: {reason}"
@@ -314,7 +317,7 @@ class Moderation(commands.Cog, name="moderation"):
         reason="The reason why the user should be banned.",
     )
     async def hackban(
-        self, context: Context, user_id: str, *, reason: str = "Not specified"
+        self, context: Context, user_id: str, *, reason: str = DEFAULT_REASON
     ) -> None:
         """
         Bans a user without the user having to be in the server.
@@ -332,9 +335,9 @@ class Moderation(commands.Cog, name="moderation"):
                 description=f"**{user}** (ID: {user_id}) was banned by **{context.author}**!",
                 color=0x9C84EF,
             )
-            embed.add_field(name="Reason:", value=reason)
+            embed.add_field(name=self.REASON_FIELD_NAME, value=reason)
             await context.send(embed=embed)
-        except Exception as e:
+        except Exception:
             embed = discord.Embed(
                 description="An error occurred while trying to ban the user. Make sure ID is an existing ID that belongs to a user.",
                 color=0xE02B2B,

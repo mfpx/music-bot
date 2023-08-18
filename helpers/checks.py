@@ -12,7 +12,7 @@ from typing import Callable, TypeVar
 
 from discord.ext import commands
 
-from exceptions import *
+from exceptions import UserNotOwner, AppInProdMode, UserBlacklisted
 from helpers import db_manager
 
 T = TypeVar("T")

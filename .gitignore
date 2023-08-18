@@ -156,3 +156,7 @@ config.json.secrets
 # Terraform
 .terraform
 .terraform.lock.hcl
+
+# SonarQube and SonarLint
+.scannerwork
+sonar-project.properties
