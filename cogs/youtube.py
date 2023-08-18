@@ -124,7 +124,6 @@ class Music(commands.Cog, name="music"):
         else:
             if self.finished_playing_time is not None:
                 difference = round(time.time()) - self.finished_playing_time
-                print(f'Calculated time difference is {difference}')
                 if not ctx.voice_client.is_playing() and difference >= 600:
                     await ctx.voice_client.disconnect()
                     self.finished_playing_time = None
