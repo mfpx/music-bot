@@ -116,7 +116,7 @@ class LoggingFormatter(logging.Formatter):
         fmt = fmt.replace("(reset)", self.reset)
         fmt = fmt.replace("(levelcolor)", log_color)
         fmt = fmt.replace("(green)", self.green + self.bold)
-        formatter = logging.Formatter(format, "%Y-%m-%d %H:%M:%S", style="{")
+        formatter = logging.Formatter(fmt, "%Y-%m-%d %H:%M:%S", style="{")
         return formatter.format(record)
 
 

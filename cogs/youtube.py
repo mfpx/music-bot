@@ -1,6 +1,6 @@
 import re
 from typing import List
-import youtube_dl
+import yt_dlp as youtube_dl
 import discord
 import asyncio
 import glob
@@ -17,6 +17,7 @@ from helpers import checks
 """
 KNOWN ISSUES:
 Sometimes the bot will fail with KeyError: 'QV' - youtube_dl bug (https://github.com/ytdl-org/youtube-dl/issues/32314)
+YouTube changes mean that youtube_dl for now is broken - youtube_dl bug (https://github.com/ytdl-org/youtube-dl/issues/32533)
 """
 
 # Suppress noise about console usage from errors
